@@ -1,21 +1,22 @@
 module Enumerable
-    def my_each(arr)
-        (arr.length).times do |v|
-            yield(arr[v])
-        end
+  def my_each
+    length.times do |v|
+      yield(self[v])
     end
-    def my_each_with_index(arr)
-        (arr.length).times do |v|
-            yield(arr[v], v)
-        end
+  end
+
+  def my_each_with_index
+    length.times do |v|
+      yield(self[v], v)
     end
+  end
+
+  def my_select
+    arr = []
+    length.times do |v|
+      arr.push(self[v]) if yield(self[v])
+    end
+    arr
+  end
 end
 include Enumerable
-my_each(["hi", "bye", "lol"]) do |k|
-    puts k
-end
-
-my_each_with_index(["hi", "bye", "lol"]) do |x, y|
-    puts x
-    puts y
-end
