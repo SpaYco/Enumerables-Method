@@ -43,5 +43,14 @@ module Enumerable
     end
     result
   end
+  def my_count
+    result = 0
+    length.times do |v|
+      if yield(self[v])
+        result += 1 
+      end
+    end
+    result
+  end
 end
 include Enumerable
