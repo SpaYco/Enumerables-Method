@@ -18,5 +18,14 @@ module Enumerable
     end
     arr
   end
+
+  def my_all?
+    result = true
+    length.times do |v|
+      result = false if yield(self[v]) != true
+      break unless result == true
+    end
+    result
+  end
 end
 include Enumerable
