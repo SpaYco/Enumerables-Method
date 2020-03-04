@@ -27,5 +27,13 @@ module Enumerable
     end
     result
   end
+  def my_any?
+    result = false
+    length.times do |v|
+      result = true if yield(self[v])
+      break unless result == false
+    end
+    result
+  end
 end
 include Enumerable
