@@ -35,5 +35,13 @@ module Enumerable
     end
     result
   end
+  def my_none?
+    result = true
+    length.times do |v|
+      result = false if yield(self[v])
+      break unless result == true
+    end
+    result
+  end
 end
 include Enumerable
