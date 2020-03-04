@@ -52,5 +52,13 @@ module Enumerable
     end
     result
   end
+  def my_map
+    result = []
+    length.times do |v|
+      yiel_var = yield(self[v])
+      result.push(yiel_var)
+    end
+    result
+  end
 end
 include Enumerable
