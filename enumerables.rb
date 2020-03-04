@@ -72,5 +72,10 @@ module Enumerable
     end
     result
   end
+  def multiply_els
+    self.my_inject do |sum, n|
+      sum * n
+    end
+  end
 end
 include Enumerable
