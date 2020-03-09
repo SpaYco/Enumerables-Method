@@ -1,6 +1,7 @@
+# rubocop:disable Style/CaseEquality
 module Enumerable
   def my_each
-    return Enumerator if block_given? == false
+    return to_enum if block_given? == false
 
     length.times do |v|
       yield(self[v])
@@ -8,7 +9,7 @@ module Enumerable
   end
 
   def my_each_with_index
-    return Enumerator if block_given? == false
+    return to_enum if block_given? == false
 
     length.times do |v|
       yield(self[v], v)
@@ -16,7 +17,7 @@ module Enumerable
   end
 
   def my_select
-    return Enumerator if block_given? == false
+    return to_enum if block_given? == false
 
     arr = []
     length.times do |v|
@@ -25,28 +26,43 @@ module Enumerable
     arr
   end
 
+  def my_checker(var, arg)
+    return true if !var.nil? && (arg === var || !(var =~ arg).nil? || var != false)
+
+    false
+  end
+
   def my_all?(arg = nil)
-    result = true
-    length.times do |v|
-      var = self[v]
-      result = false if (!arg.nil? && var != arg && var.class != arg && !(var =~ arg).nil?) || var == false
+    result = 0
+    my_each do |v|
+      if block_given? && yield(v) == true
+        result += 1
+      elsif my_checker(v, arg) == true
+        result += 1
+      end
     end
-    result
+    result == length
   end
 
-  def my_any?(*arg)
-    result = false
-    length.times do |v|
-      var = self[v]
-      result = true if var == arg[0] || var.class == arg[0] || !(var =~ arg[0]).nil? || var == true
-      break if result == true
+  def my_any?(arg = nil)
+    my_each do |v|
+      return true if block_given? && yield(v) == true
+      return true if my_checker(v, arg) == true
     end
-    result
+    false
   end
 
-  def my_none?(*arg)
-    checker = any?(arg[0])
-    checker != true
+  def my_none?(arg = nil)
+    result = 0
+    my_each do |v|
+      if block_given? && yield(v) == true
+        result += 1
+      elsif my_checker(v, arg) == true
+        result += 1
+      end
+    end
+    return false if result.positive?
+    return true if result.zero?
   end
 
   def my_count(*arg)
@@ -55,8 +71,12 @@ module Enumerable
       length.times do |v|
         result += 1 if self[v] == arg[0]
       end
+    elsif block_given?
+      length.times do |v|
+        result += 1 if yield(self[v])
+      end
     else
-      length.times do |_v|
+      length.times do |v|
         result += 1
       end
     end
@@ -64,7 +84,7 @@ module Enumerable
   end
 
   def my_map
-    return Enumerator if block_given? == false
+    return to_enum if block_given? == false
 
     result = []
     length.times do |v|
@@ -94,10 +114,10 @@ module Enumerable
   end
 
   def multiply_els
-    return Enumerator if block_given? == false
-
     my_inject do |sum, n|
       sum * n
     end
   end
 end
+# rubocop:enable Style/CaseEquality
+
