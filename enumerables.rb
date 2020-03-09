@@ -27,9 +27,7 @@ module Enumerable
   end
 
   def my_checker(var, arg)
-    return true if !var.nil? && (arg === var || !(var =~ arg).nil? || var != false)
-
-    false
+    !var.nil? && var != false && (arg === var || !(var =~ arg).nil?) ? true : false
   end
 
   def my_all?(arg = nil)
@@ -61,8 +59,7 @@ module Enumerable
         result += 1
       end
     end
-    return false if result.positive?
-    return true if result.zero?
+    result.zero? ? true : false
   end
 
   def my_count(*arg)
@@ -76,40 +73,35 @@ module Enumerable
         result += 1 if yield(self[v])
       end
     else
-      length.times do |v|
+      length.times do |_v|
         result += 1
       end
     end
     result
   end
 
-  def my_map
-    return to_enum if block_given? == false
-
+  def my_map(&proc)
     result = []
-    length.times do |v|
-      yiel_var = yield(self[v])
-      result.push(yiel_var)
+    if !proc.nil?
+      length.times do |v|
+        yield_var = proc.call(self[v])
+        result.push(yield_var)
+      end
+    else
+      length.times do |v|
+        yield_var = yield(self[v])
+        result.push(yield_var)
+      end
     end
     result
   end
 
   def my_inject(*arg)
     self_arr = to_a
-    result = self_arr[0]
-    if arg[0].nil?
-      (self_arr.length - 1).times do |v|
-        yiel_var = yield(result, self_arr[v + 1])
-        result = yiel_var
-      end
-    else
-      self_arr.length.times do |v|
-        next if v.zero?
-
-        yiel_var = result.public_send(arg[0], self_arr[v])
-        result = yiel_var
-      end
-    end
+    result = Numeric === arg[0] ? arg[0] : 0
+    self_arr.length.times { |v| result = yield(result, self_arr[v]) } if block_given?
+    self_arr.length.times { |v| result = result.public_send(arg[1], self_arr[v]) } unless arg[1].nil?
+    self_arr.length.times { |v| result = result.public_send(arg[0], self_arr[v]) } if arg[1].nil?
     result
   end
 
@@ -120,4 +112,3 @@ module Enumerable
   end
 end
 # rubocop:enable Style/CaseEquality
-
