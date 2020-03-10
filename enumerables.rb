@@ -105,7 +105,7 @@ module Enumerable
   def my_inject(*arg)
     self_arr = to_a
     result = Numeric === self_arr[0] ? 0 : ''
-    result = arg[0] if Numeric === arg[0] 
+    result = arg[0] if Numeric === arg[0]
     operator = Numeric === arg[0] ? arg[1] : arg[0]
     if block_given?
       self_arr.length.times { |v| result = yield(result, self_arr[v]) }
@@ -120,4 +120,3 @@ module Enumerable
   end
 end
 # rubocop:enable Style/CaseEquality, Metrics/ModuleLength, Metrics/CyclomaticComplexity
-p (5..10).my_inject(:+)   
