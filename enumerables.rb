@@ -85,7 +85,7 @@ module Enumerable
   end
 
   def my_map(*proc)
-    return to_enum unless !proc[0].nil? && block_given?
+    return to_enum unless !proc[0].nil? || block_given?
 
     result = []
     if !proc[0].nil?
@@ -104,9 +104,10 @@ module Enumerable
 
   def my_inject(*arg)
     self_arr = to_a
-    result = Numeric === arg[0] ? arg[0] : 0
+    result = arg[0] if Numeric === arg[0]
     operator = Numeric === arg[0] ? arg[1] : arg[0]
     if block_given?
+      result = Numeric === self_arr[0] ? 0 : ''
       self_arr.length.times { |v| result = yield(result, self_arr[v]) }
     else
       self_arr.length.times { |v| result = result.public_send(operator, self_arr[v]) }
