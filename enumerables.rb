@@ -1,4 +1,4 @@
-# rubocop:disable Style/CaseEquality
+# rubocop:disable Style/CaseEquality, Metrics/ModuleLength, Metrics/CyclomaticComplexity
 module Enumerable
   def my_each
     return to_enum if block_given? == false
@@ -27,14 +27,15 @@ module Enumerable
   end
 
   def my_checker(var, arg)
-    !var.nil? && var != false && (arg === var || !(var =~ arg).nil?) ? true : false
+    aclass = arg.class
+    !var.nil? && (arg === var || (aclass == Regexp && !(var =~ arg).nil?) || (arg.nil? && var != false)) ? true : false
   end
 
   def my_all?(arg = nil)
     result = 0
     my_each do |v|
-      if block_given? && yield(v) == true
-        result += 1
+      if block_given?
+        result += 1 if yield(v) == true
       elsif my_checker(v, arg) == true
         result += 1
       end
@@ -44,8 +45,11 @@ module Enumerable
 
   def my_any?(arg = nil)
     my_each do |v|
-      return true if block_given? && yield(v) == true
-      return true if my_checker(v, arg) == true
+      if block_given?
+        return true if yield(v) == true
+      elsif my_checker(v, arg) == true
+        return true
+      end
     end
     false
   end
@@ -53,8 +57,8 @@ module Enumerable
   def my_none?(arg = nil)
     result = 0
     my_each do |v|
-      if block_given? && yield(v) == true
-        result += 1
+      if block_given?
+        result += 1 if yield(v) == true
       elsif my_checker(v, arg) == true
         result += 1
       end
@@ -80,12 +84,14 @@ module Enumerable
     result
   end
 
-  def my_map(&proc)
+  def my_map(*proc)
+    return to_enum unless !proc[0].nil? && block_given?
+
     result = []
-    if !proc.nil?
+    if !proc[0].nil?
       length.times do |v|
-        yield_var = proc.call(self[v])
-        result.push(yield_var)
+        proc_var = proc[0].call(self[v])
+        result.push(proc_var)
       end
     else
       length.times do |v|
@@ -99,16 +105,17 @@ module Enumerable
   def my_inject(*arg)
     self_arr = to_a
     result = Numeric === arg[0] ? arg[0] : 0
-    self_arr.length.times { |v| result = yield(result, self_arr[v]) } if block_given?
-    self_arr.length.times { |v| result = result.public_send(arg[1], self_arr[v]) } unless arg[1].nil?
-    self_arr.length.times { |v| result = result.public_send(arg[0], self_arr[v]) } if arg[1].nil?
+    operator = Numeric === arg[0] ? arg[1] : arg[0]
+    if block_given?
+      self_arr.length.times { |v| result = yield(result, self_arr[v]) }
+    else
+      self_arr.length.times { |v| result = result.public_send(operator, self_arr[v]) }
+    end
     result
   end
 
   def multiply_els
-    my_inject do |sum, n|
-      sum * n
-    end
+    my_inject { |sum, n| sum * n }
   end
 end
-# rubocop:enable Style/CaseEquality
+# rubocop:enable Style/CaseEquality, Metrics/ModuleLength, Metrics/CyclomaticComplexity
