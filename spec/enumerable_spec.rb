@@ -1,3 +1,4 @@
+# rubocop:disable Layout/EndOfLine
 # spec/enumerable_spec.rb
 
 require './lib/enumerables.rb'
@@ -129,3 +130,4 @@ RSpec.describe Enumerable do
     end
   end
 end
+# rubocop:enable Layout/EndOfLine
